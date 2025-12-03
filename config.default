@@ -1,0 +1,6 @@
+# task-dag configuration file
+# place this file at ~/.config/task-dag/config
+
+# default editor for the 'edit' command
+# uses $EDITOR environment variable if set, otherwise defaults to 'vim'
+editor = vim

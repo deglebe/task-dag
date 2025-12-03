@@ -1,0 +1,16 @@
+# example task-dag file
+# format: [ ] task name -> dependency1, dependency2
+
+# an average day in the life, i guess
+[ ] wake up
+[ ] brush teeth -> wake up
+[ ] eat breakfast -> brush teeth
+[ ] go to class -> eat breakfast
+[ ] go for a run -> go to class, eat breakfast
+[ ] complete next due assignment -> go to class
+[ ] read 50 pages of book -> complete next due assignment
+
+# some standalone tasks
+[ ] tidy bookshelf
+[ ] clean toilet
+[ ] journal

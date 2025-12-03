@@ -1,0 +1,51 @@
+---
+# clangformat configuration
+# 8-space tab characters, 120 column limit
+
+Language: Cpp
+BasedOnStyle: LLVM
+
+# indentation
+IndentWidth: 8
+TabWidth: 8
+UseTab: Always
+IndentCaseLabels: true
+
+# column limit
+ColumnLimit: 120
+
+# braces
+BreakBeforeBraces: Attach
+Cpp11BracedListStyle: true
+
+# spacing
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+
+# line breaks
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: false
+
+# alignment
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: true
+AlignTrailingComments: true
+
+# pointer alignment
+PointerAlignment: Left
+
+# includes
+SortIncludes: true
+IncludeBlocks: Regroup
+
+# other
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+ReflowComments: true
+SortUsingDeclarations: true

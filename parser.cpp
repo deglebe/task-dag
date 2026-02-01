@@ -9,6 +9,19 @@
 #include <set>
 #include <sstream>
 
+static std::string priority_to_string(Priority p) {
+	switch (p) {
+		case Priority::High:
+			return "!high";
+		case Priority::Med:
+			return "!med";
+		case Priority::Low:
+			return "!low";
+		default:
+			return "!med";
+	}
+}
+
 bool TaskFile::load(const std::string& filepath) {
 	path = filepath;
 	std::ifstream f(filepath);
@@ -42,14 +55,45 @@ bool TaskFile::load(const std::string& filepath) {
 		/* parse: name -> dep1, dep2 */
 		std::string name;
 		std::vector<std::string> deps;
+		Priority priority = Priority::Med;
 
 		size_t arrow = rest.find("->");
+		std::string name_part;
 		if (arrow != std::string::npos) {
-			name = trim(rest.substr(0, arrow));
+			name_part = trim(rest.substr(0, arrow));
 			std::string dep_str = rest.substr(arrow + 2);
 			deps = split(dep_str, ',');
 		} else {
-			name = rest;
+			name_part = rest;
+		}
+
+		/* parse priority: !high, !med, !low */
+		std::string priority_str;
+		size_t priority_pos = name_part.find_last_of('!');
+		if (priority_pos != std::string::npos && priority_pos < name_part.length() - 1) {
+			std::string after_bang = trim(name_part.substr(priority_pos + 1));
+			/* check if it's a valid priority before a space or end */
+			size_t space_pos = after_bang.find(' ');
+			std::string potential_priority =
+			    space_pos != std::string::npos ? after_bang.substr(0, space_pos) : after_bang;
+
+			if (potential_priority == "high" || potential_priority == "High" ||
+			    potential_priority == "HIGH") {
+				priority = Priority::High;
+				name = trim(name_part.substr(0, priority_pos));
+			} else if (potential_priority == "med" || potential_priority == "Med" ||
+				   potential_priority == "MED") {
+				priority = Priority::Med;
+				name = trim(name_part.substr(0, priority_pos));
+			} else if (potential_priority == "low" || potential_priority == "Low" ||
+				   potential_priority == "LOW") {
+				priority = Priority::Low;
+				name = trim(name_part.substr(0, priority_pos));
+			} else {
+				name = name_part;
+			}
+		} else {
+			name = name_part;
 		}
 
 		if (name.empty()) {
@@ -66,6 +110,7 @@ bool TaskFile::load(const std::string& filepath) {
 		t.name = name;
 		t.completed = completed;
 		t.deps = deps;
+		t.priority = priority;
 		t.line_num = line_num;
 		tasks[name] = t;
 	}
@@ -166,10 +211,21 @@ std::vector<std::string> TaskFile::get_next() {
 	}
 
 	std::sort(actionable.begin(), actionable.end(), [this](const std::string& a, const std::string& b) {
-		return tasks.at(a).line_num < tasks.at(b).line_num;
+		const Task& task_a = tasks.at(a);
+		const Task& task_b = tasks.at(b);
+		/* sort by priority first (High > Med > Low) */
+		if (task_a.priority != task_b.priority) {
+			return static_cast<int>(task_a.priority) > static_cast<int>(task_b.priority);
+		}
+		/* second by line num */
+		return task_a.line_num < task_b.line_num;
 	});
 
 	return actionable;
+}
+
+const Task& TaskFile::get_task(const std::string& name) const {
+	return tasks.at(name);
 }
 
 bool TaskFile::complete(const std::string& name) {
@@ -184,7 +240,6 @@ bool TaskFile::complete(const std::string& name) {
 		return true;
 	}
 
-	// Update the line in the file
 	int idx = task.line_num - 1;
 	std::string& line = lines[idx];
 	size_t bracket = line.find("[ ]");
@@ -203,10 +258,20 @@ void TaskFile::print_list() {
 	for (const auto& pair : tasks) {
 		sorted.push_back(&pair.second);
 	}
-	std::sort(sorted.begin(), sorted.end(), [](const Task* a, const Task* b) { return a->line_num < b->line_num; });
+	std::sort(sorted.begin(), sorted.end(), [](const Task* a, const Task* b) {
+		/* sort by priority first (High > Med > Low) */
+		if (a->priority != b->priority) {
+			return static_cast<int>(a->priority) > static_cast<int>(b->priority);
+		}
+		/* second by line num */
+		return a->line_num < b->line_num;
+	});
 
 	for (const Task* t : sorted) {
 		std::cout << (t->completed ? "[x] " : "[ ] ") << t->name;
+		if (t->priority != Priority::Med) {
+			std::cout << " " << priority_to_string(t->priority);
+		}
 		if (!t->deps.empty()) {
 			std::cout << " -> ";
 			for (size_t i = 0; i < t->deps.size(); i++) {
@@ -234,7 +299,11 @@ void TaskFile::print_blocked() {
 		}
 
 		if (!blocking.empty()) {
-			std::cout << name << " blocked by: ";
+			std::cout << name;
+			if (task.priority != Priority::Med) {
+				std::cout << " " << priority_to_string(task.priority);
+			}
+			std::cout << " blocked by: ";
 			for (size_t i = 0; i < blocking.size(); i++) {
 				if (i > 0)
 					std::cout << ", ";

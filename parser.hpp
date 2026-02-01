@@ -15,6 +15,7 @@ struct TaskFile {
 	bool save();
 	bool validate();
 	std::vector<std::string> get_next();
+	const Task& get_task(const std::string& name) const;
 	bool complete(const std::string& name);
 	void print_list();
 	void print_blocked();

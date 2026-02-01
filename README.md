@@ -26,10 +26,14 @@ make install	# optional, to /usr/local/bin
 
 [ ] task name
 [ ] task with deps -> dep1, dep2
+[ ] high priority task !high
+[ ] low priority task !low -> dep1
 [x] completed task
 ```
 
-dependencies are comma-separated task names. task names are everything between the checkbox and arrow
+dependencies are comma-separated task names. task names are everything between the checkbox and arrow.
+
+priorities can be specified with `!high`, `!med`, or `!low` at the end of the task name (before the arrow if dependencies exist). default priority is `!med`. tasks are sorted by priority (high > med > low) in all outputs.
 
 ## sub-commands
 
@@ -66,3 +70,6 @@ if you have graphviz, you can visualize it like this:
 i wrote this to learn c++ for a job interview, as well as to benefit myself by more formalizing my todo workflow. i
 can't promise my work here is that great, since i'm not a massive fan of oop (read: skill issue). would eventually like
 to do a rewrite in c. as such, this is public domain.
+
+EDIT: looks like i use this every day now :P so i guess i'm going to do some more work on it over the coming months in
+my spare time. maybe a rewrite will come, but as a result of the interview i have to keep working with c++ >:D

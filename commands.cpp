@@ -1,6 +1,7 @@
 #include "commands.hpp"
 
 #include "config.hpp"
+#include "task.hpp"
 #include "util.hpp"
 
 #include <cstdlib>
@@ -15,6 +16,7 @@ void usage(const char* prog) {
 		  << "  next      show actionable tasks (default)\n"
 		  << "  list      show all tasks\n"
 		  << "  complete  mark task complete (reads name from stdin)\n"
+		  << "  done      complete the task if only one actionable task exists\n"
 		  << "  block     show blocking dependencies\n"
 		  << "  graph     output DOT format\n"
 		  << "  edit      open task file in editor\n"
@@ -51,13 +53,54 @@ std::string find_file(const std::string& hint) {
 	return data_dir + "/tasks.dag";
 }
 
+static std::string priority_to_string(Priority p) {
+	switch (p) {
+		case Priority::High:
+			return "!high";
+		case Priority::Med:
+			return "!med";
+		case Priority::Low:
+			return "!low";
+		default:
+			return "!med";
+	}
+}
+
 int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath) {
 	if (command == "next") {
 		for (const auto& name : tf.get_next()) {
-			std::cout << name << "\n";
+			const Task& task = tf.get_task(name);
+			std::cout << name;
+			if (task.priority != Priority::Med) {
+				std::cout << " " << priority_to_string(task.priority);
+			}
+			std::cout << "\n";
 		}
 	} else if (command == "list") {
 		tf.print_list();
+	} else if (command == "done") {
+		std::vector<std::string> actionable = tf.get_next();
+		if (actionable.empty()) {
+			std::cerr << "no actionable tasks\n";
+			return 0;
+		} else if (actionable.size() == 1) {
+			std::string task_name = actionable[0];
+			if (!tf.complete(task_name))
+				return 1;
+			std::cout << "completed: " << task_name << "\n";
+		} else {
+			std::cerr << "multiple actionable tasks:\n";
+			for (const auto& name : actionable) {
+				const Task& task = tf.get_task(name);
+				std::cerr << "  " << name;
+				if (task.priority != Priority::Med) {
+					std::cerr << " " << priority_to_string(task.priority);
+				}
+				std::cerr << "\n";
+			}
+			std::cerr << "use 'task-dag complete' or pipe through fzf to select one\n";
+			return 1;
+		}
 	} else if (command == "complete") {
 		std::string task_name;
 		if (!std::getline(std::cin, task_name)) {

@@ -14,3 +14,11 @@
 [ ] tidy bookshelf
 [ ] clean toilet
 [ ] journal
+
+# priority examples
+[ ] urgent deadline task !high
+[ ] important meeting prep !high -> wake up
+[ ] regular maintenance task !med
+[ ] low priority nice-to-have !low
+[ ] critical bug fix !high -> complete next due assignment
+[ ] optional enhancement !low -> tidy bookshelf

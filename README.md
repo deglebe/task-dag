@@ -38,11 +38,12 @@ priorities can be specified with `!high`, `!med`, or `!low` at the end of the ta
 ## sub-commands
 
 ```sh
-task-dag [file] next       show actionable tasks (no pending deps)
-task-dag [file] list       show all tasks with their status
-task-dag [file] complete   mark a task complete (reads name from stdin)
-task-dag [file] block      show what's blocking each pending task
-task-dag [file] graph      output dot format for graphviz
+task-dag [file] next		# show actionable tasks (no pending deps)
+task-dag [file] list		# show all tasks with their status
+task-dag [file] complete	# mark a task complete (reads name from stdin)
+task-dag done			# mark next task complete
+task-dag [file] block		# show what's blocking each pending task
+task-dag [file] graph		# output dot format for graphviz
 ```
 If no file is specified, looks for: $TASKDAG_FILE, tasks.dag, tasks.txt,
 todo.dag, todo.txt (in that order).

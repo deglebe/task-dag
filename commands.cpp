@@ -69,12 +69,7 @@ static std::string priority_to_string(Priority p) {
 int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath) {
 	if (command == "next") {
 		for (const auto& name : tf.get_next()) {
-			const Task& task = tf.get_task(name);
-			std::cout << name;
-			if (task.priority != Priority::Med) {
-				std::cout << " " << priority_to_string(task.priority);
-			}
-			std::cout << "\n";
+			std::cout << name << "\n";
 		}
 	} else if (command == "list") {
 		tf.print_list();
@@ -114,7 +109,7 @@ int run_command(TaskFile& tf, const std::string& command, const Config& config, 
 	} else if (command == "block") {
 		tf.print_blocked();
 	} else if (command == "graph") {
-		tf.print_graph();
+		tf.print_graph(config);
 	} else if (command == "edit") {
 		std::string cmd = config.editor + " \"" + filepath + "\"";
 		int result = std::system(cmd.c_str());

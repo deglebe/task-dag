@@ -4,6 +4,8 @@
 
 struct Config {
 	std::string editor;
+	std::string graph_direction;
+	std::string graph_text_color;
 };
 
 Config load_config();

@@ -1,8 +1,10 @@
 #include "parser.hpp"
 
+#include "config.hpp"
 #include "util.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -314,16 +316,64 @@ void TaskFile::print_blocked() {
 	}
 }
 
-void TaskFile::print_graph() {
+static std::string priority_to_color(Priority p) {
+	/* everforest dark medium theme colors
+	 * TODO: make this configurable*/
+	switch (p) {
+		case Priority::High:
+			return "#E67E80"; /* red */
+		case Priority::Med:
+			return "#E69875"; /* orange */
+		case Priority::Low:
+			return "#DBBC7F"; /* yellow */
+		default:
+			return "#E69875"; /* orange */
+	}
+}
+
+static std::string priority_to_bg_color(Priority p) {
+	switch (p) {
+		case Priority::High:
+			return "#514045"; /* bg_red - red tinted background */
+		case Priority::Med:
+			return "#4D4C43"; /* bg_yellow - yellow/orange tinted background */
+		case Priority::Low:
+			return "#4D4C43"; /* bg_yellow - yellow tinted background */
+		default:
+			return "#4D4C43"; /* bg_yellow */
+	}
+}
+
+void TaskFile::print_graph(const Config& config) {
+	const std::string text_color = "#D3C6AA";
+
 	std::cout << "digraph tasks {\n";
-	std::cout << "    rankdir=LR;\n";
-	std::cout << "    node [shape=box];\n";
+	std::cout << "    bgcolor=\"#2D353B\";\n";
+
+	/* set graph direction */
+	if (config.graph_direction == "vertical") {
+		std::cout << "    rankdir=TB;\n";
+	} else {
+		std::cout << "    rankdir=LR;\n";
+	}
+
+	std::cout << "    node [shape=box, fontcolor=\"" << text_color << "\"];\n";
+	std::cout << "    edge [color=\"" << text_color << "\"];\n";
 
 	for (const auto& pair : tasks) {
 		const std::string& name = pair.first;
 		const Task& task = pair.second;
-		std::string style = task.completed ? "filled" : "solid";
-		std::string fill = task.completed ? ",fillcolor=gray" : "";
+
+		std::string style = "filled";
+		std::string fill;
+		if (task.completed) {
+			fill = ",fillcolor=\"#7A8478\"";
+		} else {
+			std::string bg_color = priority_to_bg_color(task.priority);
+			std::string border_color = priority_to_color(task.priority);
+			fill = ",fillcolor=\"" + bg_color + "\",color=\"" + border_color + "\"";
+		}
+
 		std::cout << "    \"" << name << "\" [style=" << style << fill << "];\n";
 	}
 

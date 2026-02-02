@@ -4,3 +4,7 @@
 # default editor for the 'edit' command
 # uses $EDITOR environment variable if set, otherwise defaults to 'vim'
 editor = vim
+
+# graph direction for the 'graph' command
+# options: horizontal (default) or vertical
+graph_direction = horizontal

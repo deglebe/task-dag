@@ -1,5 +1,6 @@
 #pragma once
 
+#include "config.hpp"
 #include "task.hpp"
 
 #include <map>
@@ -19,5 +20,5 @@ struct TaskFile {
 	bool complete(const std::string& name);
 	void print_list();
 	void print_blocked();
-	void print_graph();
+	void print_graph(const Config& config);
 };

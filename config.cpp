@@ -87,6 +87,8 @@ Config load_config() {
 	Config config;
 
 	config.editor = std::getenv("EDITOR") ? std::getenv("EDITOR") : "vim";
+	config.graph_direction = "horizontal";
+	config.graph_text_color = ""; /* empty means auto-detect */
 
 	std::string config_dir = get_config_dir();
 	std::string config_file = config_dir + "/config";
@@ -94,6 +96,15 @@ Config load_config() {
 	auto parsed = parse_config(config_file);
 	if (parsed.count("editor")) {
 		config.editor = parsed["editor"];
+	}
+	if (parsed.count("graph_direction")) {
+		std::string dir = parsed["graph_direction"];
+		if (dir == "vertical" || dir == "horizontal") {
+			config.graph_direction = dir;
+		}
+	}
+	if (parsed.count("graph_text_color")) {
+		config.graph_text_color = parsed["graph_text_color"];
 	}
 
 	return config;

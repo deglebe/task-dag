@@ -9,12 +9,14 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 void usage(const char* prog) {
 	std::cerr << "usage: " << prog << " [file] <command>\n\n"
 		  << "commands:\n"
 		  << "  next      show actionable tasks (default)\n"
 		  << "  list      show all tasks\n"
+		  << "  add       add a new task\n"
 		  << "  complete  mark task complete (reads name from stdin)\n"
 		  << "  done      complete the task if only one actionable task exists\n"
 		  << "  block     show blocking dependencies\n"
@@ -66,7 +68,7 @@ static std::string priority_to_string(Priority p) {
 	}
 }
 
-int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath) {
+int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath, const std::vector<std::string>& args) {
 	if (command == "next") {
 		for (const auto& name : tf.get_next()) {
 			std::cout << name << "\n";
@@ -116,6 +118,88 @@ int run_command(TaskFile& tf, const std::string& command, const Config& config, 
 		if (result != 0) {
 			std::cerr << "error: failed to launch editor '" << config.editor << "'\n";
 			return 1;
+		}
+	} else if (command == "add") {
+		/* parse arguments: "task name" --priority h|m|l --deps "dep1,dep2" */
+		std::string task_name;
+		Priority priority = Priority::Med;
+		std::vector<std::string> deps;
+
+		if (args.empty()) {
+			std::cerr << "error: task name required\n";
+			std::cerr << "usage: task-dag add \"task name\" [--priority h|m|l] [--deps \"dep1,dep2\"]\n";
+			return 1;
+		}
+
+		/* parse task name (first arg, may be quoted) */
+		task_name = args[0];
+		if (task_name.front() == '"' && task_name.back() == '"' && task_name.length() >= 2) {
+			task_name = task_name.substr(1, task_name.length() - 2);
+		}
+		task_name = trim(task_name);
+		if (task_name.empty()) {
+			std::cerr << "error: task name cannot be empty\n";
+			return 1;
+		}
+
+		/* parse optional flags */
+		for (size_t i = 1; i < args.size(); i++) {
+			if (args[i] == "--priority") {
+				if (i + 1 >= args.size()) {
+					std::cerr << "error: --priority requires a value (h|m|l)\n";
+					return 1;
+				}
+				std::string prio = args[++i];
+				if (prio == "h" || prio == "high") {
+					priority = Priority::High;
+				} else if (prio == "m" || prio == "med" || prio == "medium") {
+					priority = Priority::Med;
+				} else if (prio == "l" || prio == "low") {
+					priority = Priority::Low;
+				} else {
+					std::cerr << "error: invalid priority '" << prio << "', must be h|m|l\n";
+					return 1;
+				}
+			} else if (args[i] == "--deps") {
+				if (i + 1 >= args.size()) {
+					std::cerr << "error: --deps requires a value\n";
+					return 1;
+				}
+				std::string deps_str = args[++i];
+				/* remove quotes if present */
+				if (deps_str.front() == '"' && deps_str.back() == '"' && deps_str.length() >= 2) {
+					deps_str = deps_str.substr(1, deps_str.length() - 2);
+				}
+				deps = split(deps_str, ',');
+				/* trim each dependency */
+				for (auto& dep : deps) {
+					dep = trim(dep);
+				}
+			} else {
+				std::cerr << "error: unexpected argument '" << args[i] << "'\n";
+				std::cerr << "usage: task-dag add \"task name\" [--priority h|m|l] [--deps \"dep1,dep2\"]\n";
+				return 1;
+			}
+		}
+
+		/* print parsed values for now */
+		std::cout << "parsed task:\n";
+		std::cout << "  name: " << task_name << "\n";
+		std::cout << "  priority: ";
+		switch (priority) {
+			case Priority::High: std::cout << "high"; break;
+			case Priority::Med: std::cout << "med"; break;
+			case Priority::Low: std::cout << "low"; break;
+		}
+		std::cout << "\n";
+		if (!deps.empty()) {
+			std::cout << "  deps: ";
+			for (size_t i = 0; i < deps.size(); i++) {
+				if (i > 0)
+					std::cout << ", ";
+				std::cout << deps[i];
+			}
+			std::cout << "\n";
 		}
 	}
 

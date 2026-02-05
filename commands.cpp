@@ -68,6 +68,34 @@ static std::string priority_to_string(Priority p) {
 	}
 }
 
+/* command implementations */
+int cmd_done(TaskFile& tf, [[maybe_unused]] const Config& config, [[maybe_unused]] const std::string& filepath,
+		[[maybe_unused]] const std::vector<std::string>& args) {
+	std::vector<std::string> actionable = tf.get_next();
+	if (actionable.empty()) {
+		std::cerr << "no actionable tasks\n";
+		return 0;
+	} else if (actionable.size() == 1) {
+		std::string task_name = actionable[0];
+		if (!tf.complete(task_name))
+			return 1;
+		std::cout << "completed: " << task_name << "\n";
+		return 0;
+	} else {
+		std::cerr << "multiple actionable tasks:\n";
+		for (const auto& name : actionable) {
+			const Task& task = tf.get_task(name);
+			std::cerr << "  " << name;
+			if (task.priority != Priority::Med) {
+				std::cerr << " " << priority_to_string(task.priority);
+			}
+			std::cerr << "\n";
+		}
+		std::cerr << "use 'task-dag complete' to complete one of these tasks\n";
+		return 1;
+	}
+}
+
 int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath,
 		const std::vector<std::string>& args) {
 	if (command == "next") {
@@ -77,28 +105,7 @@ int run_command(TaskFile& tf, const std::string& command, const Config& config, 
 	} else if (command == "list") {
 		tf.print_list();
 	} else if (command == "done") {
-		std::vector<std::string> actionable = tf.get_next();
-		if (actionable.empty()) {
-			std::cerr << "no actionable tasks\n";
-			return 0;
-		} else if (actionable.size() == 1) {
-			std::string task_name = actionable[0];
-			if (!tf.complete(task_name))
-				return 1;
-			std::cout << "completed: " << task_name << "\n";
-		} else {
-			std::cerr << "multiple actionable tasks:\n";
-			for (const auto& name : actionable) {
-				const Task& task = tf.get_task(name);
-				std::cerr << "  " << name;
-				if (task.priority != Priority::Med) {
-					std::cerr << " " << priority_to_string(task.priority);
-				}
-				std::cerr << "\n";
-			}
-			std::cerr << "use 'task-dag complete' or pipe through fzf to select one\n";
-			return 1;
-		}
+		return cmd_done(tf, config, filepath, args);
 	} else if (command == "complete") {
 		std::string task_name;
 		if (!std::getline(std::cin, task_name)) {

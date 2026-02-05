@@ -96,6 +96,31 @@ int cmd_done(TaskFile& tf, [[maybe_unused]] const Config& config, [[maybe_unused
 	}
 }
 
+int cmd_complete(TaskFile& tf, [[maybe_unused]] const Config& config, [[maybe_unused]] const std::string& filepath,
+		 [[maybe_unused]] const std::vector<std::string>& args) {
+	std::string task_name;
+	if (!std::getline(std::cin, task_name)) {
+		std::cerr << "error: no task name provided\n";
+		return 1;
+	}
+	task_name = trim(task_name);
+	if (!tf.complete(task_name))
+		return 1;
+	std::cout << "completed: " << task_name << "\n";
+	return 0;
+}
+
+int cmd_edit([[maybe_unused]] TaskFile& tf, const Config& config, const std::string& filepath,
+	     [[maybe_unused]] const std::vector<std::string>& args) {
+	std::string cmd = config.editor + " \"" + filepath + "\"";
+	int result = std::system(cmd.c_str());
+	if (result != 0) {
+		std::cerr << "error: failed to launch editor '" << config.editor << "'\n";
+		return 1;
+	}
+	return 0;
+}
+
 int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath,
 		const std::vector<std::string>& args) {
 	if (command == "next") {
@@ -107,26 +132,13 @@ int run_command(TaskFile& tf, const std::string& command, const Config& config, 
 	} else if (command == "done") {
 		return cmd_done(tf, config, filepath, args);
 	} else if (command == "complete") {
-		std::string task_name;
-		if (!std::getline(std::cin, task_name)) {
-			std::cerr << "error: no task name provided\n";
-			return 1;
-		}
-		task_name = trim(task_name);
-		if (!tf.complete(task_name))
-			return 1;
-		std::cout << "completed: " << task_name << "\n";
+		return cmd_complete(tf, config, filepath, args);
 	} else if (command == "block") {
 		tf.print_blocked();
 	} else if (command == "graph") {
 		tf.print_graph(config);
 	} else if (command == "edit") {
-		std::string cmd = config.editor + " \"" + filepath + "\"";
-		int result = std::system(cmd.c_str());
-		if (result != 0) {
-			std::cerr << "error: failed to launch editor '" << config.editor << "'\n";
-			return 1;
-		}
+		return cmd_edit(tf, config, filepath, args);
 	} else if (command == "add") {
 		/* parse arguments: "task name" --priority h|m|l --deps "dep1,dep2" */
 		std::string task_name;

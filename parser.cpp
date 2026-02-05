@@ -316,31 +316,29 @@ void TaskFile::print_blocked() {
 	}
 }
 
-static std::string priority_to_color(Priority p) {
-	/* everforest dark medium theme colors
-	 * TODO: make this configurable*/
+static std::string priority_to_color(Priority p, const Config& config) {
 	switch (p) {
 		case Priority::High:
-			return "#E67E80"; /* red */
+			return config.priority_high_color;
 		case Priority::Med:
-			return "#E69875"; /* orange */
+			return config.priority_med_color;
 		case Priority::Low:
-			return "#DBBC7F"; /* yellow */
+			return config.priority_low_color;
 		default:
-			return "#E69875"; /* orange */
+			return config.priority_med_color;
 	}
 }
 
-static std::string priority_to_bg_color(Priority p) {
+static std::string priority_to_bg_color(Priority p, const Config& config) {
 	switch (p) {
 		case Priority::High:
-			return "#514045"; /* bg_red - red tinted background */
+			return config.priority_high_bg;
 		case Priority::Med:
-			return "#4D4C43"; /* bg_yellow - yellow/orange tinted background */
+			return config.priority_med_bg;
 		case Priority::Low:
-			return "#4D4C43"; /* bg_yellow - yellow tinted background */
+			return config.priority_low_bg;
 		default:
-			return "#4D4C43"; /* bg_yellow */
+			return config.priority_med_bg;
 	}
 }
 
@@ -369,8 +367,8 @@ void TaskFile::print_graph(const Config& config) {
 		if (task.completed) {
 			fill = ",fillcolor=\"#7A8478\"";
 		} else {
-			std::string bg_color = priority_to_bg_color(task.priority);
-			std::string border_color = priority_to_color(task.priority);
+			std::string bg_color = priority_to_bg_color(task.priority, config);
+			std::string border_color = priority_to_color(task.priority, config);
 			fill = ",fillcolor=\"" + bg_color + "\",color=\"" + border_color + "\"";
 		}
 

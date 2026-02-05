@@ -8,3 +8,17 @@ editor = vim
 # graph direction for the 'graph' command
 # options: horizontal (default) or vertical
 graph_direction = horizontal
+
+# priority colors for graph visualization
+# high priority border color
+priority_high_color = #E67E80
+# medium priority border color
+priority_med_color = #E69875
+# low priority border color
+priority_low_color = #DBBC7F
+# high priority background color
+priority_high_bg = #514045
+# medium priority background color
+priority_med_bg = #4D4C43
+# low priority background color
+priority_low_bg = #4D4C43

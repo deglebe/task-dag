@@ -90,6 +90,14 @@ Config load_config() {
 	config.graph_direction = "horizontal";
 	config.graph_text_color = ""; /* empty means auto-detect */
 
+	/* default everforest dark medium colors */
+	config.priority_high_color = "#E67E80";
+	config.priority_med_color = "#E69875";
+	config.priority_low_color = "#DBBC7F";
+	config.priority_high_bg = "#514045";
+	config.priority_med_bg = "#4D4C43";
+	config.priority_low_bg = "#4D4C43";
+
 	std::string config_dir = get_config_dir();
 	std::string config_file = config_dir + "/config";
 
@@ -105,6 +113,24 @@ Config load_config() {
 	}
 	if (parsed.count("graph_text_color")) {
 		config.graph_text_color = parsed["graph_text_color"];
+	}
+	if (parsed.count("priority_high_color")) {
+		config.priority_high_color = parsed["priority_high_color"];
+	}
+	if (parsed.count("priority_med_color")) {
+		config.priority_med_color = parsed["priority_med_color"];
+	}
+	if (parsed.count("priority_low_color")) {
+		config.priority_low_color = parsed["priority_low_color"];
+	}
+	if (parsed.count("priority_high_bg")) {
+		config.priority_high_bg = parsed["priority_high_bg"];
+	}
+	if (parsed.count("priority_med_bg")) {
+		config.priority_med_bg = parsed["priority_med_bg"];
+	}
+	if (parsed.count("priority_low_bg")) {
+		config.priority_low_bg = parsed["priority_low_bg"];
 	}
 
 	return config;

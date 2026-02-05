@@ -68,7 +68,8 @@ static std::string priority_to_string(Priority p) {
 	}
 }
 
-int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath, const std::vector<std::string>& args) {
+int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath,
+		const std::vector<std::string>& args) {
 	if (command == "next") {
 		for (const auto& name : tf.get_next()) {
 			std::cout << name << "\n";
@@ -177,7 +178,8 @@ int run_command(TaskFile& tf, const std::string& command, const Config& config, 
 				}
 			} else {
 				std::cerr << "error: unexpected argument '" << args[i] << "'\n";
-				std::cerr << "usage: task-dag add \"task name\" [--priority h|m|l] [--deps \"dep1,dep2\"]\n";
+				std::cerr
+				    << "usage: task-dag add \"task name\" [--priority h|m|l] [--deps \"dep1,dep2\"]\n";
 				return 1;
 			}
 		}
@@ -187,9 +189,15 @@ int run_command(TaskFile& tf, const std::string& command, const Config& config, 
 		std::cout << "  name: " << task_name << "\n";
 		std::cout << "  priority: ";
 		switch (priority) {
-			case Priority::High: std::cout << "high"; break;
-			case Priority::Med: std::cout << "med"; break;
-			case Priority::Low: std::cout << "low"; break;
+			case Priority::High:
+				std::cout << "high";
+				break;
+			case Priority::Med:
+				std::cout << "med";
+				break;
+			case Priority::Low:
+				std::cout << "low";
+				break;
 		}
 		std::cout << "\n";
 		if (!deps.empty()) {

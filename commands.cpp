@@ -70,7 +70,7 @@ static std::string priority_to_string(Priority p) {
 
 /* command implementations */
 int cmd_done(TaskFile& tf, [[maybe_unused]] const Config& config, [[maybe_unused]] const std::string& filepath,
-		[[maybe_unused]] const std::vector<std::string>& args) {
+	     [[maybe_unused]] const std::vector<std::string>& args) {
 	std::vector<std::string> actionable = tf.get_next();
 	if (actionable.empty()) {
 		std::cerr << "no actionable tasks\n";

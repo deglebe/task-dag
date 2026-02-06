@@ -69,6 +69,14 @@ static std::string priority_to_string(Priority p) {
 }
 
 /* command implementations */
+int cmd_next(TaskFile& tf, [[maybe_unused]] const Config& config, [[maybe_unused]] const std::string& filepath,
+	     [[maybe_unused]] const std::vector<std::string>& args) {
+	for (const auto& name : tf.get_next()) {
+		std::cout << name << "\n";
+	}
+	return 1;
+}
+
 int cmd_done(TaskFile& tf, [[maybe_unused]] const Config& config, [[maybe_unused]] const std::string& filepath,
 	     [[maybe_unused]] const std::vector<std::string>& args) {
 	std::vector<std::string> actionable = tf.get_next();
@@ -124,9 +132,7 @@ int cmd_edit([[maybe_unused]] TaskFile& tf, const Config& config, const std::str
 int run_command(TaskFile& tf, const std::string& command, const Config& config, const std::string& filepath,
 		const std::vector<std::string>& args) {
 	if (command == "next") {
-		for (const auto& name : tf.get_next()) {
-			std::cout << name << "\n";
-		}
+		return cmd_next(tf, config, filepath, args);
 	} else if (command == "list") {
 		tf.print_list();
 	} else if (command == "done") {

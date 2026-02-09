@@ -329,19 +329,6 @@ static std::string priority_to_color(Priority p, const Config& config) {
 	}
 }
 
-static std::string priority_to_bg_color(Priority p, const Config& config) {
-	switch (p) {
-		case Priority::High:
-			return config.priority_high_bg;
-		case Priority::Med:
-			return config.priority_med_bg;
-		case Priority::Low:
-			return config.priority_low_bg;
-		default:
-			return config.priority_med_bg;
-	}
-}
-
 void TaskFile::print_graph(const Config& config) {
 	const std::string text_color = "#D3C6AA";
 
@@ -362,17 +349,15 @@ void TaskFile::print_graph(const Config& config) {
 		const std::string& name = pair.first;
 		const Task& task = pair.second;
 
-		std::string style = "filled";
-		std::string fill;
+		std::string color_attr;
 		if (task.completed) {
-			fill = ",fillcolor=\"#7A8478\"";
+			color_attr = "color=\"#7A8478\"";
 		} else {
-			std::string bg_color = priority_to_bg_color(task.priority, config);
 			std::string border_color = priority_to_color(task.priority, config);
-			fill = ",fillcolor=\"" + bg_color + "\",color=\"" + border_color + "\"";
+			color_attr = "color=\"" + border_color + "\"";
 		}
 
-		std::cout << "    \"" << name << "\" [style=" << style << fill << "];\n";
+		std::cout << "    \"" << name << "\" [" << color_attr << "];\n";
 	}
 
 	for (const auto& pair : tasks) {
